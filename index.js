@@ -4,10 +4,13 @@ const fs = require('fs');
 const Telegraf = require('telegraf');
 const Parser = require('rss-parser');
 
-const { CHAT_ID, RSS_URLS, TELEGRAM_BOT_TOKEN } = process.env;
+const { CHAT_ID, RSS_URLS, TELEGRAM_BOT_TOKEN, USER_AGENT } = process.env;
 
 const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
-const parser = new Parser();
+const parser = new Parser({
+  timeout: 10000,
+  headers: { 'User-Agent': USER_AGENT },
+});
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
