@@ -59,9 +59,18 @@ const filterItems = async items => {
   return filtered;
 };
 
+const e = text => {
+  const escaped = text
+    .replace('_', '\\_')
+    .replace('*', '\\*')
+    .replace('[', '\\[')
+    .replace('`', '\\`');
+  return escaped;
+};
+
 const sendMessage = async item => {
   const { content, guid, link, title } = item;
-  const text = `*${title}*\n\n${content}\n\n${link}`;
+  const text = `*${e(title)}*\n\n${e(content)}\n\n${e(link)}`;
   console.log(`Sending ${guid}: ${title}`);
   await bot.telegram.sendMessage(CHAT_ID, text, { parse_mode: 'Markdown' });
   await sleep(100);
