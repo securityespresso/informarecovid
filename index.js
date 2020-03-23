@@ -67,7 +67,7 @@ const main = async () => {
       .catch(e => {
         console.error('An error has occured:', e);
       });
-  }, 3 * 1000);
+  }, 60 * 1000);
 };
 
 main()
