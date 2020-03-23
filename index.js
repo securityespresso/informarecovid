@@ -4,7 +4,7 @@ const fs = require('fs');
 const Telegraf = require('telegraf');
 const Parser = require('rss-parser');
 
-const { CHAT_ID, RSS_URL, TELEGRAM_BOT_TOKEN } = process.env;
+const { CHAT_ID, RSS_URLS, TELEGRAM_BOT_TOKEN } = process.env;
 
 const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 const parser = new Parser();
@@ -25,7 +25,15 @@ const saveLastTimestamp = ts => {
 
 const fetchRSS = async () => {
   console.log('Fetching RSS items');
-  const { items } = await parser.parseURL(RSS_URL);
+
+  const urls = RSS_URLS.split(',').map(url => url.trim());
+  const feeds = await Promise.all(urls.map(url => parser.parseURL(url)));
+
+  const items = feeds.reduce((items, feed) => {
+    const { items: feedItems } = feed;
+    return [...items, ...feedItems];
+  }, []);
+
   console.log(`Found ${items.length} items`);
   return items;
 };
@@ -54,7 +62,7 @@ const filterItems = async items => {
 const sendMessage = async item => {
   const { content, guid, link, title } = item;
   const text = `*${title}*\n\n${content}\n\n${link}`;
-  console.log(`Sending ${guid}`);
+  console.log(`Sending ${guid}: ${title}`);
   await bot.telegram.sendMessage(CHAT_ID, text, { parse_mode: 'Markdown' });
   await sleep(100);
 };
